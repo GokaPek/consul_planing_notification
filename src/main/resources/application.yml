@@ -5,10 +5,6 @@ spring:
     username: postgres
     password: postgres
 
-  cloud:
-    config:
-      enabled: false
-
   jpa:
     show-sql: true
     properties:
@@ -26,10 +22,7 @@ spring:
           auth: true
           starttls:
             enable: true
-reminder:
-  scheduler:
-    enabled: true
-    cron: "0 0 12 * * ?"
+
 logging:
   file:
     name: logs/app.log
@@ -37,4 +30,4 @@ logging:
     org.springframework.web: DEBUG
     ru.promo.consul_plan_notify: DEBUG
 server:
-  port: 8081
+  port: 8181

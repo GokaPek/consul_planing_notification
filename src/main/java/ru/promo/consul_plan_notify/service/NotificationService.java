@@ -1,6 +1,7 @@
 package ru.promo.consul_plan_notify.service;
 
 import ru.promo.consul_plan_notify.domain.Notification;
+import ru.promo.consul_plan_notify.domain.SendReminderRequest;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 
 import java.util.List;
@@ -20,5 +21,5 @@ public interface NotificationService {
 
     List<Notification> getAllByClientId(Long clientId);
 
-    void sendReminder(Long consultationId, String clientEmail, String specialistEmail);
+    void sendReminder(SendReminderRequest request);
 }

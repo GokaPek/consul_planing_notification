@@ -4,6 +4,7 @@ import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.Notification;
+import ru.promo.consul_plan_notify.domain.SendReminderRequest;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 import ru.promo.consul_plan_notify.domain.entity.NotificationType;
 import ru.promo.consul_plan_notify.domain.entity.TypeStatus;
@@ -62,10 +63,10 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendReminder(Long consultationId, String clientEmail, String specialistEmail) {
+    public void sendReminder(SendReminderRequest request) {
         // Логика отправки напоминания
         NotificationEntity reminder = new NotificationEntity();
-        reminder.setConsultationId(consultationId); // Используем простое поле вместо связи
+        reminder.setConsultationId(request.getConsultationId());
         reminder.setType(TypeStatus.REMAINED);
         reminder.setSentDateTime(LocalDateTime.now());
         reminder.setStatus(NotificationType.SENT);
@@ -74,8 +75,8 @@ public class NotificationServiceImpl implements NotificationService {
         // Отправка уведомления по электронной почте
         try {
             String subject = "Напоминание о консультации";
-            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + specialistEmail;
-            emailService.sendEmail(clientEmail, subject, text);
+            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + request.getSpecialistName();
+            emailService.sendEmail(request.getClientEmail(), subject, text);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
