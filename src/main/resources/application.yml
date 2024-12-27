@@ -5,6 +5,10 @@ spring:
     username: postgres
     password: postgres
 
+  cloud:
+    config:
+      enabled: false
+
   jpa:
     show-sql: true
     properties:
