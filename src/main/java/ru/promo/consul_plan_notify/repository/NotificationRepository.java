@@ -11,10 +11,10 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
     List<NotificationEntity> findAllByConsultationId(Long consultationId);
 
     @Query(value = """
-        SELECT n.*
-        FROM notification n
-        JOIN consultation c ON n.consultation_id = c.id
-        WHERE c.client_id = :clientId
-        """, nativeQuery = true)
+            SELECT n.*
+            FROM notification n
+            JOIN consultation c ON n.consultation_id = c.id
+            WHERE c.client_id = :clientId
+            """, nativeQuery = true)
     List<NotificationEntity> findAllByClientId(@Param("clientId") Long clientId);
 }

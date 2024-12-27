@@ -10,8 +10,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @PropertySource("classpath:application.yml")
 public class ConsulPlanNotifyApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ConsulPlanNotifyApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(ConsulPlanNotifyApplication.class, args);
+    }
 
 }

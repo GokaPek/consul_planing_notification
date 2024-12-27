@@ -61,7 +61,7 @@ public class NotificationController implements NotificationApi {
     }
 
     @Override
-    public ResponseEntity<Void> sendReminder( SendReminderRequest request) {
+    public ResponseEntity<Void> sendReminder(SendReminderRequest request) {
         log.info("Send reminder for consultation ID: {}", request.getConsultationId());
         notificationService.sendReminder(request);
         return ResponseEntity.noContent().build();
