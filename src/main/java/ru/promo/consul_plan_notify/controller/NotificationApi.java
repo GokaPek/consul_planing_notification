@@ -42,6 +42,6 @@ public interface NotificationApi {
     ResponseEntity<List<Notification>> getNotificationsByClientId(@Parameter(description = "ID клиента") @PathVariable(name = "clientId") @NotNull @Positive Long clientId);
 
     @Operation(summary = "Отправить напоминание о консультации")
-    @PostMapping("/reminder/")
+    @PostMapping("/reminder")
     ResponseEntity<Void> sendReminder(@Parameter(description = "Параметры для изменения уведомления") @Valid @RequestBody @NotNull SendReminderRequest request);
 }

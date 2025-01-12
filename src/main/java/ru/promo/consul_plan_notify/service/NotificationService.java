@@ -22,4 +22,6 @@ public interface NotificationService {
     List<Notification> getAllByClientId(Long clientId);
 
     void sendReminder(SendReminderRequest request);
+
+    void sendReminder(Long consultationId, String clientEmail, String specialistEmail);
 }

@@ -63,6 +63,26 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendReminder(Long consultationId, String clientEmail, String specialistEmail) {
+        // Логика отправки напоминания
+        NotificationEntity reminder = new NotificationEntity();
+        reminder.setConsultationId(consultationId);
+        reminder.setType(TypeStatus.REMAINED);
+        reminder.setSentDateTime(LocalDateTime.now());
+        reminder.setStatus(NotificationType.SENT);
+        notificationRepository.save(reminder);
+
+        // Отправка уведомления по электронной почте
+        try {
+            String subject = "Напоминание о консультации";
+            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + specialistEmail;
+            emailService.sendEmail(clientEmail, subject, text);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public void sendReminder(SendReminderRequest request) {
         // Логика отправки напоминания
         NotificationEntity reminder = new NotificationEntity();

@@ -27,6 +27,15 @@ spring:
           starttls:
             enable: true
 
+feign:
+  client:
+    config:
+      consultation-service:
+        url: http://localhost:8080
+reminder:
+  scheduler:
+    enabled: true
+    cron: "0 0 12 * * ?"
 logging:
   file:
     name: logs/app.log
