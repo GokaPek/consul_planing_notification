@@ -33,3 +33,7 @@ build/
 .vscode/
 /logs/
 /.idea/
+/.gitattributes
+/.mvn/wrapper/maven-wrapper.properties
+/mvnw
+/mvnw.cmd
