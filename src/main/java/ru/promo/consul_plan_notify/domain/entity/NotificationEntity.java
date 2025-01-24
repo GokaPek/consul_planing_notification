@@ -27,4 +27,10 @@ public class NotificationEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
     private NotificationType status;
+
+    @Column(name = "client_email", nullable = false)
+    private String clientEmail;
+
+    @Column(name = "specialist_email", nullable = false)
+    private String specialistEmail;
 }

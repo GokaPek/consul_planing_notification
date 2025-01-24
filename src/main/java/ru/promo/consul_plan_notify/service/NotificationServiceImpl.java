@@ -87,6 +87,8 @@ public class NotificationServiceImpl implements NotificationService {
         // Логика отправки напоминания
         NotificationEntity reminder = new NotificationEntity();
         reminder.setConsultationId(request.getConsultationId());
+        reminder.setClientEmail(request.getClientEmail()); // Сохраняем email клиента
+        reminder.setSpecialistEmail(request.getSpecialistName()); // Сохраняем email специалиста
         reminder.setType(TypeStatus.REMAINED);
         reminder.setSentDateTime(LocalDateTime.now());
         reminder.setStatus(NotificationType.SENT);
