@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
+import ru.promo.consul_plan_notify.domain.entity.NotificationType;
 
 import java.util.List;
 
@@ -17,4 +18,6 @@ public interface NotificationRepository extends JpaRepository<NotificationEntity
             WHERE c.client_id = :clientId
             """, nativeQuery = true)
     List<NotificationEntity> findAllByClientId(@Param("clientId") Long clientId);
+
+    List<NotificationEntity> findByStatus(NotificationType status);
 }

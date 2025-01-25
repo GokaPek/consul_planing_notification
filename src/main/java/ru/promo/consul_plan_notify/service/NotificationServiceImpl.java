@@ -103,4 +103,15 @@ public class NotificationServiceImpl implements NotificationService {
             e.printStackTrace();
         }
     }
+
+    public List<NotificationEntity> getUnsentNotifications() {
+        return notificationRepository.findByStatus(NotificationType.UNSENT);
+    }
+
+    public void markNotificationAsSent(Long notificationId) {
+        NotificationEntity notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
+        notification.setStatus(NotificationType.SENT);
+        notificationRepository.save(notification);
+    }
 }
