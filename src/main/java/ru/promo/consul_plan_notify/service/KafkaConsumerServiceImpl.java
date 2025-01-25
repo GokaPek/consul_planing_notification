@@ -1,8 +1,8 @@
 package ru.promo.consul_plan_notify.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.ConsultationEvent;
 import ru.promo.consul_plan_notify.domain.Notification;
@@ -42,18 +42,18 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService{
 
     @Override
     public void handleConsultationCancelled(String event) {
+        ConsultationEvent consultationEvent = null;
         try {
-            ConsultationEvent consultationEvent = objectMapper.readValue(event, ConsultationEvent.class);
+            consultationEvent = objectMapper.readValue(event, ConsultationEvent.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("Failed to process the cancellation of the consultation", e);
+        }
 
-            Notification notification = notificationService.getByConsultationId(consultationEvent.getConsultationId());
+        Notification notification = notificationService.getByConsultationId(consultationEvent.getConsultationId());
 
             if (notification != null) {
                 notification.setType(TypeStatus.CANCELLED);
                 notificationService.update(notification);
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
