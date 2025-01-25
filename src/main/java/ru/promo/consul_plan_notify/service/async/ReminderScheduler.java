@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
-import ru.promo.consul_plan_notify.domain.entity.NotificationType;
 import ru.promo.consul_plan_notify.service.NotificationService;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class ReminderScheduler {
         log.info("Starting daily reminders task");
 
         // Получить уведомления, которые нужно отправить (статус UNSENT)
-        List<NotificationEntity> notifications = notificationService.getUnsentNotifications();
+        List<NotificationEntity> notifications = notificationService.getUnsentNotificationsTomorrow();
 
         for (NotificationEntity notification : notifications) {
             try {

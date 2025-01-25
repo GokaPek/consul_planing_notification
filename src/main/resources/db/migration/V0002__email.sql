@@ -4,3 +4,6 @@ ALTER TABLE notification
 
 ALTER TABLE notification
     ADD COLUMN specialist_email VARCHAR(255) NOT NULL;
+
+ALTER TABLE notification
+    ADD COLUMN consultation_date DATE   NOT NULL;

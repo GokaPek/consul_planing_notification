@@ -3,6 +3,7 @@ package ru.promo.consul_plan_notify.domain.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -33,4 +34,7 @@ public class NotificationEntity {
 
     @Column(name = "specialist_email", nullable = false)
     private String specialistEmail;
+
+    @Column(name = "consultation_date", nullable = false)
+    private LocalDate consultationDate;
 }

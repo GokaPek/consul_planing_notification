@@ -31,6 +31,7 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService{
             notification.setStatus(NotificationType.UNSENT);
             notification.setType(TypeStatus.CONFORMED);
             notification.setSentDateTime(LocalDateTime.now());
+            notification.setConsultationDate(consultationEvent.getConsultationDate());
 
             notificationService.create(notification);
 
@@ -44,7 +45,7 @@ public class KafkaConsumerServiceImpl implements KafkaConsumerService{
         try {
             ConsultationEvent consultationEvent = objectMapper.readValue(event, ConsultationEvent.class);
 
-            Notification notification = notificationService.getById(consultationEvent.getConsultationId());
+            Notification notification = notificationService.getByConsultationId(consultationEvent.getConsultationId());
 
             if (notification != null) {
                 notification.setType(TypeStatus.CANCELLED);

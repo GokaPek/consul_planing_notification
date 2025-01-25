@@ -13,6 +13,7 @@ import ru.promo.consul_plan_notify.mapper.NotificationEntityMapper;
 import ru.promo.consul_plan_notify.mapper.NotificationMapper;
 import ru.promo.consul_plan_notify.repository.NotificationRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -104,14 +105,23 @@ public class NotificationServiceImpl implements NotificationService {
         }
     }
 
-    public List<NotificationEntity> getUnsentNotifications() {
-        return notificationRepository.findByStatus(NotificationType.UNSENT);
+    @Override
+    public List<NotificationEntity> getUnsentNotificationsTomorrow() {
+        return notificationRepository.findByStatusAndConsultationDate(NotificationType.UNSENT, LocalDate.now().plusDays(1));
     }
 
+    @Override
     public void markNotificationAsSent(Long notificationId) {
         NotificationEntity notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
         notification.setStatus(NotificationType.SENT);
         notificationRepository.save(notification);
+    }
+
+    @Override
+    public Notification getByConsultationId(Long consultationId) {
+        NotificationEntity notification = notificationRepository.findByConsultationId(consultationId);
+        Notification notificationDto = notificationMapper.toDTO(notification);
+        return notificationDto;
     }
 }
