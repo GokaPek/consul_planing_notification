@@ -2,7 +2,10 @@ package ru.promo.consul_plan_notify.service;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import ru.promo.consul_plan_notify.domain.ConsultationEvent;
 import ru.promo.consul_plan_notify.domain.Notification;
 import ru.promo.consul_plan_notify.domain.SendReminderRequest;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
@@ -16,6 +19,7 @@ import ru.promo.consul_plan_notify.repository.NotificationRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,43 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public void create(NotificationEntity entity) {
         notificationRepository.save(entity);
+    }
+
+    @Override
+    public void create(ConsultationEvent consultationEvent) {
+        var notification = new NotificationEntity();
+        notification.setConsultationId(consultationEvent.getConsultationId());
+        notification.setClientEmail(consultationEvent.getClientEmail());
+        notification.setSpecialistEmail(consultationEvent.getSpecialistEmail());
+        notification.setStatus(NotificationType.UNSENT);
+        notification.setType(TypeStatus.CONFORMED);
+        notification.setSentDateTime(LocalDateTime.now());
+        notification.setConsultationDate(consultationEvent.getConsultationDate());
+
+        notificationRepository.save(notification);
+    }
+
+    @Override
+    public void update(ConsultationEvent consultationEvent) {
+        // Ищем уведомление по consultationId
+        Optional<NotificationEntity> optionalNotification = notificationRepository.findByConsultationId(consultationEvent.getConsultationId());
+
+        // Используем orElseGet для создания нового уведомления, если оно не найдено
+        NotificationEntity notification = optionalNotification.orElseGet(() -> {
+            NotificationEntity newNotification = new NotificationEntity();
+            newNotification.setConsultationId(consultationEvent.getConsultationId());
+            newNotification.setClientEmail(consultationEvent.getClientEmail());
+            newNotification.setSpecialistEmail(consultationEvent.getSpecialistEmail());
+            newNotification.setStatus(NotificationType.UNSENT);
+            newNotification.setConsultationDate(consultationEvent.getConsultationDate());
+            return newNotification;
+        });
+
+        // Обновляем тип уведомления
+        notification.setType(TypeStatus.CANCELLED);
+
+        // Сохраняем уведомление в репозитории
+        notificationRepository.save(notification);
     }
 
     @Override
@@ -56,11 +97,6 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<Notification> getAllByConsultationId(Long consultationId) {
         return notificationMapper.toDTOList(notificationRepository.findAllByConsultationId(consultationId));
-    }
-
-    @Override
-    public List<Notification> getAllByClientId(Long clientId) {
-        return notificationMapper.toDTOList(notificationRepository.findAllByClientId(clientId));
     }
 
     @Override
@@ -106,8 +142,8 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public List<NotificationEntity> getUnsentNotificationsTomorrow() {
-        return notificationRepository.findByStatusAndConsultationDate(NotificationType.UNSENT, LocalDate.now().plusDays(1));
+    public Page<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size) {
+        return notificationRepository.findByStatusAndConsultationDate(PageRequest.of(page, size), NotificationType.UNSENT, LocalDate.now().plusDays(1));
     }
 
     @Override
@@ -116,12 +152,5 @@ public class NotificationServiceImpl implements NotificationService {
                 .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
         notification.setStatus(NotificationType.SENT);
         notificationRepository.save(notification);
-    }
-
-    @Override
-    public Notification getByConsultationId(Long consultationId) {
-        NotificationEntity notification = notificationRepository.findByConsultationId(consultationId);
-        Notification notificationDto = notificationMapper.toDTO(notification);
-        return notificationDto;
     }
 }

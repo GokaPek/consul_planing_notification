@@ -1,6 +1,7 @@
 package ru.promo.consul_plan_notify.domain;
 
 import lombok.Data;
+import ru.promo.consul_plan_notify.domain.entity.TypeStatus;
 
 import java.time.LocalDate;
 
@@ -10,4 +11,5 @@ public class ConsultationEvent {
     private String clientEmail;
     private String specialistEmail;
     private LocalDate consultationDate;
+    private TypeStatus status;
 }

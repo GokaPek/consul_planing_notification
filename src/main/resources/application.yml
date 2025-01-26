@@ -30,6 +30,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 
+
 feign:
   client:
     config:

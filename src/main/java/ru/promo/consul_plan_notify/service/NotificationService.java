@@ -1,5 +1,7 @@
 package ru.promo.consul_plan_notify.service;
 
+import org.springframework.data.domain.Page;
+import ru.promo.consul_plan_notify.domain.ConsultationEvent;
 import ru.promo.consul_plan_notify.domain.Notification;
 import ru.promo.consul_plan_notify.domain.SendReminderRequest;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
@@ -11,6 +13,10 @@ public interface NotificationService {
 
     void create(NotificationEntity entity);
 
+    void create(ConsultationEvent consultationEvent);
+
+    void update(ConsultationEvent consultationEvent);
+
     Notification getById(Long id);
 
     void update(Notification dto);
@@ -19,15 +25,11 @@ public interface NotificationService {
 
     List<Notification> getAllByConsultationId(Long consultationId);
 
-    List<Notification> getAllByClientId(Long clientId);
-
     void sendReminder(SendReminderRequest request);
 
     void sendReminder(Long consultationId, String clientEmail, String specialistEmail);
 
-    List<NotificationEntity> getUnsentNotificationsTomorrow();
+    Page<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size);
 
     void markNotificationAsSent(Long id);
-
-    Notification getByConsultationId(Long consultationId);
 }

@@ -3,15 +3,14 @@ package ru.promo.consul_plan_notify.service.async;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 import ru.promo.consul_plan_notify.service.NotificationService;
 
-import java.util.List;
-
-@Service
 @Slf4j
+@Service
 @RequiredArgsConstructor
 @ConditionalOnProperty(
         prefix = "reminder.scheduler",
@@ -26,26 +25,31 @@ public class ReminderScheduler {
     public void sendDailyReminders() {
         log.info("Starting daily reminders task");
 
-        // Получить уведомления, которые нужно отправить (статус UNSENT)
-        List<NotificationEntity> notifications = notificationService.getUnsentNotificationsTomorrow();
+        int page = 0;
+        int size = 50;
+        Page<NotificationEntity> notifications;
 
-        for (NotificationEntity notification : notifications) {
-            try {
-                // Отправить уведомление
-                notificationService.sendReminder(
-                        notification.getConsultationId(),
-                        notification.getClientEmail(),
-                        notification.getSpecialistEmail()
-                );
+        do {
+            notifications = notificationService.getUnsentNotificationsTomorrow(page, size);
+            for (NotificationEntity notification : notifications) {
+                try {
+                    // Отправить уведомление
+                    notificationService.sendReminder(
+                            notification.getConsultationId(),
+                            notification.getClientEmail(),
+                            notification.getSpecialistEmail()
+                    );
 
-                // Обновить статус уведомления на "SENT"
-                notificationService.markNotificationAsSent(notification.getId());
+                    // Обновить статус уведомления на "SENT"
+                    notificationService.markNotificationAsSent(notification.getId());
 
-                log.info("Reminder sent for consultation ID: {}", notification.getConsultationId());
-            } catch (Exception e) {
-                log.error("Failed to send reminder for consultation ID: {}", notification.getConsultationId(), e);
+                    log.info("Reminder sent for consultation ID: {}", notification.getConsultationId());
+                } catch (Exception e) {
+                    log.error("Failed to send reminder for consultation ID: {}", notification.getConsultationId(), e);
+                }
             }
-        }
+            page++;
+        } while (!notifications.isEmpty());
 
         log.info("Daily reminders task completed");
     }
