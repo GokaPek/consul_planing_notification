@@ -31,7 +31,7 @@ public class ReminderScheduler {
 
         do {
             notifications = notificationService.getUnsentNotificationsTomorrow(page, size);
-            for (NotificationEntity notification : notifications) {
+            notifications.forEach(notification -> {
                 try {
                     // Отправить уведомление
                     notificationService.sendReminder(
@@ -47,7 +47,7 @@ public class ReminderScheduler {
                 } catch (Exception e) {
                     log.error("Failed to send reminder for consultation ID: {}", notification.getConsultationId(), e);
                 }
-            }
+            });
             page++;
         } while (!notifications.isEmpty());
 
