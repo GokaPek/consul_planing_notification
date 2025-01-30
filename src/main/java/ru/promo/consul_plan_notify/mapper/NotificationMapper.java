@@ -10,10 +10,6 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface NotificationMapper {
 
-    @Mapping(source = "type", target = "type")
-    @Mapping(source = "status", target = "status")
-    @Mapping(source = "consultationDate", target = "consultationDate")
     Notification toDTO(NotificationEntity notificationEntity);
-
     List<Notification> toDTOList(List<NotificationEntity> entities);
 }

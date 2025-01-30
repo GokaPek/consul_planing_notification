@@ -29,7 +29,7 @@ public interface NotificationService {
 
     void sendReminder(Long consultationId, String clientEmail, String specialistEmail);
 
-    Page<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size);
+    List<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size);
 
-    void markNotificationAsSent(Long id);
+    void markNotificationAsSent(NotificationEntity notification);
 }

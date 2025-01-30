@@ -142,14 +142,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public Page<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size) {
+    public List<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size) {
         return notificationRepository.findByStatusAndConsultationDate(PageRequest.of(page, size), NotificationType.UNSENT, LocalDate.now().plusDays(1));
     }
 
     @Override
-    public void markNotificationAsSent(Long notificationId) {
-        NotificationEntity notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("Notification not found with ID: " + notificationId));
+    public void markNotificationAsSent(NotificationEntity notification) {
         notification.setStatus(NotificationType.SENT);
         notificationRepository.save(notification);
     }

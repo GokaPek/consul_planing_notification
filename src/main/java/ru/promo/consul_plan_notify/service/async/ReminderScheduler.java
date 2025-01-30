@@ -3,11 +3,12 @@ package ru.promo.consul_plan_notify.service.async;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 import ru.promo.consul_plan_notify.service.NotificationService;
+
+import java.util.List;
 
 @Slf4j
 @Service
@@ -27,7 +28,7 @@ public class ReminderScheduler {
 
         int page = 0;
         int size = 50;
-        Page<NotificationEntity> notifications;
+        List<NotificationEntity> notifications;
 
         do {
             notifications = notificationService.getUnsentNotificationsTomorrow(page, size);
@@ -41,7 +42,7 @@ public class ReminderScheduler {
                     );
 
                     // Обновить статус уведомления на "SENT"
-                    notificationService.markNotificationAsSent(notification.getId());
+                    notificationService.markNotificationAsSent(notification);
 
                     log.info("Reminder sent for consultation ID: {}", notification.getConsultationId());
                 } catch (Exception e) {

@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface NotificationRepository extends JpaRepository<NotificationEntity, Long> {
     List<NotificationEntity> findAllByConsultationId(Long consultationId);
 
-    Page<NotificationEntity> findByStatusAndConsultationDate(Pageable page, NotificationType status, LocalDate date);
+    List<NotificationEntity> findByStatusAndConsultationDate(Pageable page, NotificationType status, LocalDate date);
 
     Optional<NotificationEntity> findByConsultationId(Long consultationId);
 }
