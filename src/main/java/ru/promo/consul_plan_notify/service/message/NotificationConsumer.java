@@ -18,15 +18,8 @@ public class NotificationConsumer {
     @KafkaListener(topics = "consultation-topic", groupId = "notification-service")
     public void handleConsultationEvent(ConsultationEvent consultationEvent) {
         try {
+            notificationService.handleNotification(consultationEvent);
             log.info("Received consultation event: {}", consultationEvent);
-
-            if (consultationEvent.getStatus() == TypeStatus.CONFORMED) {
-                notificationService.create(consultationEvent);
-            } else if (consultationEvent.getStatus() == TypeStatus.CANCELLED) {
-                notificationService.update(consultationEvent);
-            } else {
-                log.warn("Unknown consultation status: {}", consultationEvent.getStatus());
-            }
         } catch (Exception e) {
             log.error("Failed to process consultation event: {}", consultationEvent, e);
         }

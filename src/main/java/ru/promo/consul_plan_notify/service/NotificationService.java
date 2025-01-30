@@ -9,13 +9,11 @@ import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 import java.util.List;
 
 public interface NotificationService {
+    void handleNotification(ConsultationEvent event);
+
     void create(Notification dto);
 
     void create(NotificationEntity entity);
-
-    void create(ConsultationEvent consultationEvent);
-
-    void update(ConsultationEvent consultationEvent);
 
     Notification getById(Long id);
 

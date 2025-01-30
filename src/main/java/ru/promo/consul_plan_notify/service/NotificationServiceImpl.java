@@ -2,7 +2,6 @@ package ru.promo.consul_plan_notify.service;
 
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.ConsultationEvent;
@@ -19,7 +18,6 @@ import ru.promo.consul_plan_notify.repository.NotificationRepository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +27,34 @@ public class NotificationServiceImpl implements NotificationService {
     private final EmailService emailService;
     private final NotificationMapper notificationMapper;
     private final NotificationEntityMapper notificationEntityMapper;
+
+    @Override
+    public void handleNotification(ConsultationEvent event) {
+        NotificationEntity notification = switch (event.getStatus()) {
+            case CONFORMED -> createNotificationEntity(event, TypeStatus.CONFORMED);
+            case CANCELLED -> getOrCreateNotificationEntity(event);
+            default -> throw new IllegalStateException("Неподходящий статус консультации: %s".formatted(event.getStatus()));
+        };
+
+        notificationRepository.save(notification);
+    }
+
+    private NotificationEntity createNotificationEntity(ConsultationEvent event, TypeStatus status) {
+        NotificationEntity notification = new NotificationEntity();
+        notification.setConsultationId(event.getConsultationId());
+        notification.setClientEmail(event.getClientEmail());
+        notification.setSpecialistEmail(event.getSpecialistEmail());
+        notification.setStatus(NotificationType.UNSENT);
+        notification.setType(status);
+        notification.setSentDateTime(LocalDateTime.now());
+        notification.setConsultationDate(event.getConsultationDate());
+        return notification;
+    }
+
+    private NotificationEntity getOrCreateNotificationEntity(ConsultationEvent event) {
+        return notificationRepository.findByConsultationId(event.getConsultationId())
+                .orElseGet(() -> createNotificationEntity(event, TypeStatus.CANCELLED));
+    }
 
     @Override
     public void create(Notification dto) {
@@ -41,45 +67,9 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void create(ConsultationEvent consultationEvent) {
-        var notification = new NotificationEntity();
-        notification.setConsultationId(consultationEvent.getConsultationId());
-        notification.setClientEmail(consultationEvent.getClientEmail());
-        notification.setSpecialistEmail(consultationEvent.getSpecialistEmail());
-        notification.setStatus(NotificationType.UNSENT);
-        notification.setType(TypeStatus.CONFORMED);
-        notification.setSentDateTime(LocalDateTime.now());
-        notification.setConsultationDate(consultationEvent.getConsultationDate());
-
-        notificationRepository.save(notification);
-    }
-
-    @Override
-    public void update(ConsultationEvent consultationEvent) {
-        // Ищем уведомление по consultationId
-        Optional<NotificationEntity> optionalNotification = notificationRepository.findByConsultationId(consultationEvent.getConsultationId());
-
-        // Используем orElseGet для создания нового уведомления, если оно не найдено
-        NotificationEntity notification = optionalNotification.orElseGet(() -> {
-            NotificationEntity newNotification = new NotificationEntity();
-            newNotification.setConsultationId(consultationEvent.getConsultationId());
-            newNotification.setClientEmail(consultationEvent.getClientEmail());
-            newNotification.setSpecialistEmail(consultationEvent.getSpecialistEmail());
-            newNotification.setStatus(NotificationType.UNSENT);
-            newNotification.setConsultationDate(consultationEvent.getConsultationDate());
-            return newNotification;
-        });
-
-        // Обновляем тип уведомления
-        notification.setType(TypeStatus.CANCELLED);
-
-        // Сохраняем уведомление в репозитории
-        notificationRepository.save(notification);
-    }
-
-    @Override
     public Notification getById(Long id) {
-        return notificationMapper.toDTO(notificationRepository.findById(id).orElseThrow(() -> new NotFoundException("Notification not found with id: " + id)));
+        return notificationMapper.toDTO(notificationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Notification not found with id: " + id)));
     }
 
     @Override
@@ -101,15 +91,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendReminder(Long consultationId, String clientEmail, String specialistEmail) {
-        // Логика отправки напоминания
-        NotificationEntity reminder = new NotificationEntity();
-        reminder.setConsultationId(consultationId);
-        reminder.setType(TypeStatus.REMAINED);
-        reminder.setSentDateTime(LocalDateTime.now());
-        reminder.setStatus(NotificationType.SENT);
+        NotificationEntity reminder = createNotificationEntity(consultationId, clientEmail, specialistEmail, TypeStatus.REMAINED);
         notificationRepository.save(reminder);
 
-        // Отправка уведомления по электронной почте
         try {
             String subject = "Напоминание о консультации";
             String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + specialistEmail;
@@ -121,17 +105,9 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void sendReminder(SendReminderRequest request) {
-        // Логика отправки напоминания
-        NotificationEntity reminder = new NotificationEntity();
-        reminder.setConsultationId(request.getConsultationId());
-        reminder.setClientEmail(request.getClientEmail()); // Сохраняем email клиента
-        reminder.setSpecialistEmail(request.getSpecialistName()); // Сохраняем email специалиста
-        reminder.setType(TypeStatus.REMAINED);
-        reminder.setSentDateTime(LocalDateTime.now());
-        reminder.setStatus(NotificationType.SENT);
+        NotificationEntity reminder = createNotificationEntity(request.getConsultationId(), request.getClientEmail(), request.getSpecialistName(), TypeStatus.REMAINED);
         notificationRepository.save(reminder);
 
-        // Отправка уведомления по электронной почте
         try {
             String subject = "Напоминание о консультации";
             String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + request.getSpecialistName();
@@ -150,5 +126,16 @@ public class NotificationServiceImpl implements NotificationService {
     public void markNotificationAsSent(NotificationEntity notification) {
         notification.setStatus(NotificationType.SENT);
         notificationRepository.save(notification);
+    }
+
+    private NotificationEntity createNotificationEntity(Long consultationId, String clientEmail, String specialistEmail, TypeStatus status) {
+        NotificationEntity notification = new NotificationEntity();
+        notification.setConsultationId(consultationId);
+        notification.setClientEmail(clientEmail);
+        notification.setSpecialistEmail(specialistEmail);
+        notification.setStatus(NotificationType.UNSENT);
+        notification.setType(status);
+        notification.setSentDateTime(LocalDateTime.now());
+        return notification;
     }
 }
