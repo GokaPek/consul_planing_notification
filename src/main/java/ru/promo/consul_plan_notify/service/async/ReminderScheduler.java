@@ -36,9 +36,7 @@ public class ReminderScheduler {
                 try {
                     // Отправить уведомление
                     notificationService.sendReminder(
-                            notification.getConsultationId(),
-                            notification.getClientEmail(),
-                            notification.getSpecialistEmail()
+                            notification
                     );
 
                     // Обновить статус уведомления на "SENT"

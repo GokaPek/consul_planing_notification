@@ -23,9 +23,7 @@ public interface NotificationService {
 
     List<Notification> getAllByConsultationId(Long consultationId);
 
-    void sendReminder(SendReminderRequest request);
-
-    void sendReminder(Long consultationId, String clientEmail, String specialistEmail);
+    void sendReminder(NotificationEntity reminder);
 
     List<NotificationEntity> getUnsentNotificationsTomorrow(int page, int size);
 

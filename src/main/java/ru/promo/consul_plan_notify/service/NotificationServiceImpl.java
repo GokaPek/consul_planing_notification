@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.promo.consul_plan_notify.domain.ConsultationEvent;
 import ru.promo.consul_plan_notify.domain.Notification;
-import ru.promo.consul_plan_notify.domain.SendReminderRequest;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 import ru.promo.consul_plan_notify.domain.entity.NotificationType;
 import ru.promo.consul_plan_notify.domain.entity.TypeStatus;
@@ -90,28 +89,15 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void sendReminder(Long consultationId, String clientEmail, String specialistEmail) {
-        NotificationEntity reminder = createNotificationEntity(consultationId, clientEmail, specialistEmail, TypeStatus.REMAINED);
+    public void sendReminder(NotificationEntity reminder) {
+        reminder.setType(TypeStatus.REMAINED);
+
         notificationRepository.save(reminder);
 
         try {
             String subject = "Напоминание о консультации";
-            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + specialistEmail;
-            emailService.sendEmail(clientEmail, subject, text);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void sendReminder(SendReminderRequest request) {
-        NotificationEntity reminder = createNotificationEntity(request.getConsultationId(), request.getClientEmail(), request.getSpecialistName(), TypeStatus.REMAINED);
-        notificationRepository.save(reminder);
-
-        try {
-            String subject = "Напоминание о консультации";
-            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + request.getSpecialistName();
-            emailService.sendEmail(request.getClientEmail(), subject, text);
+            String text = "Уважаемый пользователь, напоминаем вам о предстоящей консультации у специалиста " + reminder.getSpecialistEmail();
+            emailService.sendEmail(reminder.getClientEmail(), subject, text);
         } catch (MessagingException e) {
             e.printStackTrace();
         }
@@ -126,16 +112,5 @@ public class NotificationServiceImpl implements NotificationService {
     public void markNotificationAsSent(NotificationEntity notification) {
         notification.setStatus(NotificationType.SENT);
         notificationRepository.save(notification);
-    }
-
-    private NotificationEntity createNotificationEntity(Long consultationId, String clientEmail, String specialistEmail, TypeStatus status) {
-        NotificationEntity notification = new NotificationEntity();
-        notification.setConsultationId(consultationId);
-        notification.setClientEmail(clientEmail);
-        notification.setSpecialistEmail(specialistEmail);
-        notification.setStatus(NotificationType.UNSENT);
-        notification.setType(status);
-        notification.setSentDateTime(LocalDateTime.now());
-        return notification;
     }
 }
