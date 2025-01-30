@@ -21,34 +21,32 @@ import java.util.List;
 public class ReminderScheduler {
 
     private final NotificationService notificationService;
+    private static final int PAGE_SIZE = 50;
 
     @Scheduled(cron = "${reminder.scheduler.cron}")
     public void sendDailyReminders() {
         log.info("Starting daily reminders task");
 
-        int page = 0;
-        int size = 50;
-        List<NotificationEntity> notifications;
+        List<NotificationEntity> notifications = notificationService.getUnsentNotificationsTomorrow(0, PAGE_SIZE);
 
-        do {
-            notifications = notificationService.getUnsentNotificationsTomorrow(page, size);
-            notifications.forEach(notification -> {
-                try {
-                    // Отправить уведомление
-                    notificationService.sendReminder(
-                            notification
-                    );
+        if (notifications.isEmpty()) {
+            log.info("No notifications to send.");
+            return;
+        }
 
-                    // Обновить статус уведомления на "SENT"
-                    notificationService.markNotificationAsSent(notification);
+        notifications.forEach(notification -> {
+            try {
+                // Отправить уведомление
+                notificationService.sendReminder(notification);
 
-                    log.info("Reminder sent for consultation ID: {}", notification.getConsultationId());
-                } catch (Exception e) {
-                    log.error("Failed to send reminder for consultation ID: {}", notification.getConsultationId(), e);
-                }
-            });
-            page++;
-        } while (!notifications.isEmpty());
+                // Обновить статус уведомления на "SENT"
+                notificationService.markNotificationAsSent(notification);
+
+                log.info("Reminder sent for consultation ID: {}", notification.getConsultationId());
+            } catch (Exception e) {
+                log.error("Failed to send reminder for consultation ID: {}", notification.getConsultationId(), e);
+            }
+        });
 
         log.info("Daily reminders task completed");
     }
