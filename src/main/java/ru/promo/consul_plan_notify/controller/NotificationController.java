@@ -52,18 +52,4 @@ public class NotificationController implements NotificationApi {
         List<Notification> notificationsEntity = notificationService.getAllByConsultationId(consultationId);
         return ResponseEntity.ok(notificationsEntity);
     }
-
-    @Override
-    public ResponseEntity<List<Notification>> getNotificationsByClientId(Long clientId) {
-        log.debug("Get notifications by client ID: {}", clientId);
-        List<Notification> notificationsEntity = notificationService.getAllByClientId(clientId);
-        return ResponseEntity.ok(notificationsEntity);
-    }
-
-    @Override
-    public ResponseEntity<Void> sendReminder(SendReminderRequest request) {
-        log.info("Send reminder for consultation ID: {}", request.getConsultationId());
-        notificationService.sendReminder(request);
-        return ResponseEntity.noContent().build();
-    }
 }

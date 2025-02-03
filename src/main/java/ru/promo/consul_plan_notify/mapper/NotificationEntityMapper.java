@@ -1,6 +1,7 @@
 package ru.promo.consul_plan_notify.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.promo.consul_plan_notify.domain.Notification;
 import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 
@@ -8,4 +9,3 @@ import ru.promo.consul_plan_notify.domain.entity.NotificationEntity;
 public interface NotificationEntityMapper {
     NotificationEntity toEntity(Notification notification);
 }
-

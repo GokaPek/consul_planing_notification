@@ -27,6 +27,10 @@ spring:
           starttls:
             enable: true
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
+
 feign:
   client:
     config:
@@ -35,7 +39,7 @@ feign:
 reminder:
   scheduler:
     enabled: true
-    cron: "0 0 12 * * ?"
+    cron: "0 0 * * * ?"
 logging:
   file:
     name: logs/app.log
