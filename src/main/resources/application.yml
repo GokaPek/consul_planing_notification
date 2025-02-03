@@ -39,7 +39,7 @@ feign:
 reminder:
   scheduler:
     enabled: true
-    cron: "0 0 12 * * ?"
+    cron: "0 0 * * * ?"
 logging:
   file:
     name: logs/app.log
